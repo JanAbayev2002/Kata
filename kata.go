@@ -56,7 +56,7 @@ func calculation(expression string) (string, error) {
 	if rim_first_num {
 		a, b, err = parseRomanOperands(first_num, second_num)
 	} else {
-		a, b, err = parseOperands(first_num, second_num)
+		a, b, err = parseArabicOperands(first_num, second_num)
 	}
 	if err != nil {
 		return "", err
@@ -80,7 +80,44 @@ func calculation(expression string) (string, error) {
 		panic("Неизвестный оператор: ")
 	}
 
-	return fmt.Sprintf("%d", result), nil
+	if rim_first_num {
+		if result <= 0 {
+			panic("Римские числа должны быть только положительными")
+		}
+		return in_rim(result), nil
+	}
+
+	return strconv.Itoa(result), nil
+}
+
+func parseArabicOperands(first_num, second_num string) (int, int, error) {
+	a, err := strconv.Atoi(first_num)
+	if err != nil {
+		return 0, 0, err
+	}
+	b, err := strconv.Atoi(second_num)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	if a < 1 || a > 10 || b < 1 || b > 10 {
+		panic("Не соответствует диапазону [1:10]")
+	}
+
+	return a, b, nil
+}
+
+func parseRomanOperands(first_num, second_num string) (int, int, error) {
+	a, check := rimtoarab[first_num]
+	if !check {
+		panic("Неправильно набрано римское число")
+	}
+	b, check := rimtoarab[second_num]
+	if !check {
+		panic("Неправильно набрано римское число")
+	}
+
+	return a, b, nil
 }
 
 func check_rim_numeral (expression string) bool {
