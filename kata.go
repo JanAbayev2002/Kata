@@ -41,8 +41,12 @@ func calculation(expression string) (string, error) {
 	num1, err1 := strconv.Atoi(first_num)
 	num2, err2 := strconv.Atoi(second_num)
 
+	if num1 < 1 || num1 > 10 || num2 < 1 || num2 > 10{
+		panic("Числа не входят в диапазон [1;10]")
+	} 
+
 	if err1 != nil || err2 != nil {
-		return "", fmt.Errorf("Не удалось преобразовать операнды в числа")
+		panic("Не удалось преобразовать операнды в числа")
 	}
 
 	var result int
@@ -60,7 +64,7 @@ func calculation(expression string) (string, error) {
 		}
 		result = num1 / num2
 	default:
-		return "", fmt.Errorf("Неизвестный оператор: %s", operator)
+		panic("Неизвестный оператор: ")
 	}
 
 	return fmt.Sprintf("%d", result), nil
