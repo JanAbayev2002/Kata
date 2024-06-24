@@ -8,8 +8,8 @@ import (
 	"strings"
 )
 
-var rim_to_arab = map[string]int {
-	"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6,
+var rim_to_arab = map[string]int{
+	"I":    1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6,
 	"VII": 7, "VIII": 8, "IX": 9, "X": 10,
 }
 
@@ -29,7 +29,7 @@ func main() {
 
 		result, err := calculation(resulting_expression)
 		if err != nil {
-			fmt.Println("Ошибка:", err)
+			panic("Ошибка")
 		} else {
 			fmt.Println("Результат:", result)
 		}
@@ -39,11 +39,11 @@ func main() {
 func calculation(expression string) (string, error) {
 	parts_of_expression := strings.Fields(expression)
 	if len(parts_of_expression) != 3 {
-		return "", fmt.Errorf("Вы ввели выражение неверно")
+		panic("Вы ввели выражение неверно")
 	}
 
 	first_num, operator, second_num := parts_of_expression[0], parts_of_expression[1], parts_of_expression[2]
-	
+
 	rim_first_num := check_rim_numeral(first_num)
 	rim_second_num := check_rim_numeral(second_num)
 
@@ -62,29 +62,28 @@ func calculation(expression string) (string, error) {
 		return "", err
 	}
 
-
 	var result int
 	switch operator {
 	case "+":
-		result = num1 + num2
+		result = a + b
 	case "-":
-		result = num1 - num2
+		result = a - b
 	case "*":
-		result = num1 * num2
+		result = a * b
 	case "/":
-		if num2 == 0 {
-			return "", fmt.Errorf("Деление на ноль невозможно")
+		if b == 0 {
+			panic("Деление на ноль невозможно")
 		}
-		result = num1 / num2
+		result = a / b
 	default:
-		panic("Неизвестный оператор: ")
+		panic("Неизвестный оператор")
 	}
 
 	if rim_first_num {
 		if result <= 0 {
 			panic("Римские числа должны быть только положительными")
 		}
-		return in_rim(result), nil
+		return in_rim_answer(result), nil
 	}
 
 	return strconv.Itoa(result), nil
@@ -108,11 +107,11 @@ func parseArabicOperands(first_num, second_num string) (int, int, error) {
 }
 
 func parseRomanOperands(first_num, second_num string) (int, int, error) {
-	a, check := rimtoarab[first_num]
+	a, check := rim_to_arab[first_num]
 	if !check {
 		panic("Неправильно набрано римское число")
 	}
-	b, check := rimtoarab[second_num]
+	b, check := rim_to_arab[second_num]
 	if !check {
 		panic("Неправильно набрано римское число")
 	}
@@ -120,7 +119,27 @@ func parseRomanOperands(first_num, second_num string) (int, int, error) {
 	return a, b, nil
 }
 
-func check_rim_numeral (expression string) bool {
+func in_rim_answer(num int) string {
+	if num <= 0 || num > 3999 {
+		return ""
+	}
+
+	val := []int{1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1}
+	syb := []string{"M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"}
+
+	var rim strings.Builder
+
+	for i := 0; i < len(val); i++ {
+		for num >= val[i] {
+			num -= val[i]
+			rim.WriteString(syb[i])
+		}
+	}
+
+	return rim.String()
+}
+
+func check_rim_numeral(expression string) bool {
 	_, check := rim_to_arab[expression]
 	return check
 }
