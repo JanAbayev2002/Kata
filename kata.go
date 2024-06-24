@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+var rim_to_arab = map[string]int {
+	"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6,
+	"VII": 7, "VIII": 8, "IX": 9, "X": 10,
+}
+
 func main() {
 	fmt.Println("Задание для вступления в Kata")
 	fmt.Println("Введите выражение в формате x + y или exit для выхода:")
@@ -38,19 +43,27 @@ func calculation(expression string) (string, error) {
 	}
 
 	first_num, operator, second_num := parts_of_expression[0], parts_of_expression[1], parts_of_expression[2]
-	num1, err1 := strconv.Atoi(first_num)
-	num2, err2 := strconv.Atoi(second_num)
+	
+	rim_first_num := check_rim_numeral(first_num)
+	rim_second_num := check_rim_numeral(second_num)
 
-	if num1 < 1 || num1 > 10 || num2 < 1 || num2 > 10{
-		panic("Числа не входят в диапазон [1;10]")
-	} 
-
-	if err1 != nil || err2 != nil {
-		panic("Не удалось преобразовать операнды в числа")
+	if rim_first_num != rim_second_num {
+		panic("Не смешивайте две системы исчисления")
 	}
 
-	var result int
+	var a, b int
+	var err error
+	if rim_first_num {
+		a, b, err = parseRomanOperands(first_num, second_num)
+	} else {
+		a, b, err = parseOperands(first_num, second_num)
+	}
+	if err != nil {
+		return "", err
+	}
 
+
+	var result int
 	switch operator {
 	case "+":
 		result = num1 + num2
@@ -68,4 +81,9 @@ func calculation(expression string) (string, error) {
 	}
 
 	return fmt.Sprintf("%d", result), nil
+}
+
+func check_rim_numeral (expression string) bool {
+	_, check := rim_to_arab[expression]
+	return check
 }
